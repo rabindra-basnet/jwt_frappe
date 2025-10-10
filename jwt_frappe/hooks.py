@@ -15,6 +15,12 @@ app_license = "MIT"
 
 on_session_creation = "jwt_frappe.on_session_creation"
 
+doc_events ={
+    "User":{
+        "on_trash":"jwt_frappe.doc_events.user.on_trash"
+    }
+}
+
 # Includes in <head>
 # ------------------
 

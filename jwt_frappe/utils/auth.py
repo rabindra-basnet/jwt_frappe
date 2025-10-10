@@ -23,37 +23,37 @@ def get_linked_user(id_type, id):
     return frappe.db.get_value("User", {id_type: id})
 
 
-@frappe.whitelist(allow_guest=True)
-def get_token(user, pwd, expires_in=3600, expire_on=None, device=None):
-    """
-    Get the JWT Token
-    :param user: The user in ctx
-    :param pwd: Pwd to auth
-    :param expires_in: number of seconds till expiry
-    :param expire_on: yyyy-mm-dd HH:mm:ss to specify the expiry (deprecated)
-    :param device: The device in ctx
-    """
-    if not frappe.db.exists("User", user):
-        raise frappe.ValidationError(_("Invalide User"))
+# @frappe.whitelist(allow_guest=True)
+# def get_token(user, pwd, expires_in=3600, expire_on=None, device=None):
+#     """
+#     Get the JWT Token
+#     :param user: The user in ctx
+#     :param pwd: Pwd to auth
+#     :param expires_in: number of seconds till expiry
+#     :param expire_on: yyyy-mm-dd HH:mm:ss to specify the expiry (deprecated)
+#     :param device: The device in ctx
+#     """
+#     if not frappe.db.exists("User", user):
+#         raise frappe.ValidationError(_("Invalide User"))
 
-    from frappe.sessions import clear_sessions
+#     from frappe.sessions import clear_sessions
 
-    login = LoginManager()
-    login.check_if_enabled(user)
-    if not check_password(user, pwd):
-        login.fail("Incorrect password", user=user)
-    login.login_as(user)
-    login.resume = False
-    login.run_trigger("on_session_creation")
-    _expires_in = 3600
-    if cint(expires_in):
-        _expires_in = cint(expires_in)
-    elif expire_on:
-        _expires_in = (get_datetime(expire_on) - get_datetime()).total_seconds()
+#     login = LoginManager()
+#     login.check_if_enabled(user)
+#     if not check_password(user, pwd):
+#         login.fail("Incorrect password", user=user)
+#     login.login_as(user)
+#     login.resume = False
+#     login.run_trigger("on_session_creation")
+#     _expires_in = 3600
+#     if cint(expires_in):
+#         _expires_in = cint(expires_in)
+#     elif expire_on:
+#         _expires_in = (get_datetime(expire_on) - get_datetime()).total_seconds()
 
-    token = get_bearer_token(user=user, expires_in=_expires_in)
-    frappe.local.response["token"] = token["access_token"]
-    frappe.local.response.update(token)
+#     token = get_bearer_token(user=user, expires_in=_expires_in)
+#     # frappe.local.response["token"] = token["access_token"]
+#     frappe.local.response.update(token)
 
 
 def get_oath_client():
