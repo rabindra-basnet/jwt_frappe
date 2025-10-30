@@ -31,7 +31,7 @@ def on_session_creation(login_manager):
     })
 
     # Set refresh token cookie
-    expires = datetime.now() + timedelta(seconds=expires_in)
+    # expires = datetime.now() + timedelta(seconds=expires_in)
     # frappe.local.cookie_manager.set_cookie(
     #     key="refresh_token",
     #     value=token_data["refresh_token"],

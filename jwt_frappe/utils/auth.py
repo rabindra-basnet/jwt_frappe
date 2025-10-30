@@ -18,42 +18,9 @@ def get_linked_user(id_type, id):
         frappe.throw(f"Invalid id_type: {id_type}")
 
     if id_type in ("mobile", "sms"):
-        id_type = "mobaile_no"
+        id_type = "mobile_no"
 
     return frappe.db.get_value("User", {id_type: id})
-
-
-# @frappe.whitelist(allow_guest=True)
-# def get_token(user, pwd, expires_in=3600, expire_on=None, device=None):
-#     """
-#     Get the JWT Token
-#     :param user: The user in ctx
-#     :param pwd: Pwd to auth
-#     :param expires_in: number of seconds till expiry
-#     :param expire_on: yyyy-mm-dd HH:mm:ss to specify the expiry (deprecated)
-#     :param device: The device in ctx
-#     """
-#     if not frappe.db.exists("User", user):
-#         raise frappe.ValidationError(_("Invalide User"))
-
-#     from frappe.sessions import clear_sessions
-
-#     login = LoginManager()
-#     login.check_if_enabled(user)
-#     if not check_password(user, pwd):
-#         login.fail("Incorrect password", user=user)
-#     login.login_as(user)
-#     login.resume = False
-#     login.run_trigger("on_session_creation")
-#     _expires_in = 3600
-#     if cint(expires_in):
-#         _expires_in = cint(expires_in)
-#     elif expire_on:
-#         _expires_in = (get_datetime(expire_on) - get_datetime()).total_seconds()
-
-#     token = get_bearer_token(user=user, expires_in=_expires_in)
-#     # frappe.local.response["token"] = token["access_token"]
-#     frappe.local.response.update(token)
 
 
 def get_oath_client():
@@ -81,7 +48,7 @@ def get_oath_client():
 def get_bearer_token(user, expires_in=3600):
     import hashlib
     import jwt
-    import frappe.oauth
+    from frappe.oauth import calculate_at_hash
     from oauthlib.oauth2.rfc6749.tokens import random_token_generator
 
     client = get_oath_client()
@@ -122,7 +89,7 @@ def get_bearer_token(user, expires_in=3600):
             "userid",
         ),
         "iss": "frappe_server_url",
-        "at_hash": frappe.oauth.calculate_at_hash(token.access_token, hashlib.sha256),
+        "at_hash": calculate_at_hash(token.access_token, hashlib.sha256),
     }
     id_token_encoded = jwt.encode(
         id_token, "client_secret", algorithm="HS256", headers=id_token_header
@@ -132,10 +99,3 @@ def get_bearer_token(user, expires_in=3600):
     frappe.flags.jwt = id_token_encoded
     return token
 
-
-@frappe.whitelist()
-def get_jwt_token():
-    """
-    Get jwt token for the active user
-    """
-    return get_bearer_token(user=frappe.session.user, expires_in=86400)["access_token"]

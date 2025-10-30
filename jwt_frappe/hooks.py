@@ -21,6 +21,17 @@ doc_events ={
     }
 }
 
+
+# Scheduled Tasks
+# ---------------
+
+scheduler_events = {
+	"cron": {
+		# run every 5 minutes
+		"*/5 * * * *": ["jwt_frappe.scheduler.update_bearer_status.status_bearer_token"]
+	}
+}
+
 # Includes in <head>
 # ------------------
 
